@@ -599,7 +599,8 @@ export default class LoginComponent extends React.PureComponent<IProps, IState> 
                         serverConfig={this.props.serverConfig}
                         onServerConfigChange={this.props.onServerConfigChange}
                     />
-                    {this.renderLoginComponentForFlows()}
+                    {/* disabled due to redirect to SSO, no need render component */}
+                    {/* this.renderLoginComponentForFlows() */}
                     {footer}
                 </AuthBody>
             </AuthPage>
