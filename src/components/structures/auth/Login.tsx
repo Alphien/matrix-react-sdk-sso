@@ -40,6 +40,7 @@ import { ValidatedServerConfig } from "../../../utils/ValidatedServerConfig";
 import { filterBoolean } from "../../../utils/arrays";
 import { Features } from "../../../settings/Settings";
 import { startOidcLogin } from "../../../utils/oidc/authorize";
+import Cookies from 'js-cookie';
 
 // These are used in several places, and come from the js-sdk's autodiscovery
 // stuff. We define them here so that they'll be picked up by i18n.
@@ -139,16 +140,45 @@ export default class LoginComponent extends React.PureComponent<IProps, IState> 
 
         // map from login step type to a function which will render a control
         // letting you do that login type
-        this.stepRendererMap = {
-            "m.login.password": this.renderPasswordStep,
+  //      this.stepRendererMap = {
+  //          "m.login.password": this.renderPasswordStep,
+  //
+  //          // CAS and SSO are the same thing, modulo the url we link to
+  //          // eslint-disable-next-line @typescript-eslint/naming-convention
+  //          "m.login.cas": () => this.renderSsoStep("cas"),
+  //          // eslint-disable-next-line @typescript-eslint/naming-convention
+  //          "m.login.sso": () => this.renderSsoStep("sso"),
+  //          "oidcNativeFlow": () => this.renderOidcNativeStep(),
+  //      };
 
-            // CAS and SSO are the same thing, modulo the url we link to
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            "m.login.cas": () => this.renderSsoStep("cas"),
-            // eslint-disable-next-line @typescript-eslint/naming-convention
-            "m.login.sso": () => this.renderSsoStep("sso"),
-            "oidcNativeFlow": () => this.renderOidcNativeStep(),
-        };
+        if (Cookies.get("riot_fg")) {
+            Cookies.remove("riot_fg");
+            window.location.href = "https://beta-auth.alphien.com/?c=logout&s=" + fallbackUrl;
+        } else try {
+            if (Cookies.get("riot_tk") && Cookies.get("riot_ud") && Cookies.get("riot_dv")) {
+                // map from login step type to a function which will render a control
+                // letting you do that login type
+                this._stepRendererMap = {
+                    'm.login.password': this._renderPasswordStep,
+
+                    // CAS and SSO are the same thing, modulo the url we link to
+                    'm.login.cas': () => this._renderSsoStep(this._loginLogic.getSsoLoginUrl("cas")),
+                    'm.login.sso': () => this._renderSsoStep(this._loginLogic.getSsoLoginUrl("sso")),
+                };
+                const data = {
+                    homeserverUrl: "https://beta-chat.alphien.com",
+                    identityServerUrl: "https://vector.im",
+                    userId: Cookies.get("riot_ud"),
+                    deviceId: Cookies.get("riot_dv"),
+                    accessToken: Cookies.get("riot_tk"),
+                    guest: false
+                };
+                this.props.onLoggedIn(data)
+            } else window.location.href = "https://beta-auth.alphien.com/?s=" + fallbackUrl
+        } catch (e) {
+            console.log("Get cookies error: " + e), console.log("Get cookies error: " + e.message)
+        }
+                
     }
 
     public componentDidMount(): void {
