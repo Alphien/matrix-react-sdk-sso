@@ -159,11 +159,14 @@ export default class LoginComponent extends React.PureComponent<IProps, IState> 
                 // map from login step type to a function which will render a control
                 // letting you do that login type
                 this._stepRendererMap = {
-                    'm.login.password': this._renderPasswordStep,
-
+                    // 'm.login.password': this.renderPasswordStep,
+                       "m.login.password": this.renderPasswordStep,
                     // CAS and SSO are the same thing, modulo the url we link to
-                    'm.login.cas': () => this._renderSsoStep(this._loginLogic.getSsoLoginUrl("cas")),
-                    'm.login.sso': () => this._renderSsoStep(this._loginLogic.getSsoLoginUrl("sso")),
+                    // 'm.login.cas': () => this.renderSsoStep(this.loginLogic.getSsoLoginUrl("cas")),
+                       "m.login.cas": () => this.renderSsoStep("cas"),
+                    // 'm.login.sso': () => this.renderSsoStep(this.loginLogic.getSsoLoginUrl("sso")),
+                       "m.login.sso": () => this.renderSsoStep("sso"),
+                    
                 };
                 const data = {
                     homeserverUrl: "https://beta-chat.alphien.com",
